@@ -9,9 +9,10 @@
 */
 typedef struct _priqueue_t
 {
-  void *m_q[100];
+  void **m_q;
   int(*comparer)(const void *, const void *);
   int front, rear;
+  int size;
 } priqueue_t;
 
 
@@ -26,5 +27,6 @@ void * priqueue_remove_at(priqueue_t *q, int index);
 int    priqueue_size     (priqueue_t *q);
 
 void   priqueue_destroy  (priqueue_t *q);
+void   resize            (priqueue_t *q);
 
 #endif /* LIBPQUEUE_H_ */

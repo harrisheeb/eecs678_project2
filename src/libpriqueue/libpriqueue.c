@@ -21,6 +21,8 @@ void priqueue_init(priqueue_t *q, int(*comparer)(const void *, const void *))
 {
   q->front = q->rear = -1;
   q->comparer = comparer;
+  q->size = 100;
+  q->m_q = malloc(100*sizeof(void*));
 }
 
 
@@ -33,9 +35,8 @@ void priqueue_init(priqueue_t *q, int(*comparer)(const void *, const void *))
  */
 int priqueue_offer(priqueue_t *q, void *ptr)
 {
-  if(q->rear >= 99){
-    printf("\nQueue overflow no more elements can be inserted.");
-    return -1;
+  if(q->rear >= q->size - 1){
+    resize(q);
   }
   if((q->front == -1) && (q->rear == -1)){
     q->front++;
@@ -195,5 +196,13 @@ int priqueue_size(priqueue_t *q)
  */
 void priqueue_destroy(priqueue_t *q)
 {
+  free(q->m_q);
+}
 
+void resize(priqueue_t *q){
+  void** new_q = malloc(q->size*sizeof(void*));
+  for(int i = 0; i < q->rear; i++){
+    new_q[i] = q->m_q[i];
+  }
+  q->m_q = new_q;
 }
