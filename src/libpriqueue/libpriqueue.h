@@ -9,7 +9,9 @@
 */
 typedef struct _priqueue_t
 {
-
+  void *m_q[100];
+  int(*comparer)(const void *, const void *);
+  int front, rear;
 } priqueue_t;
 
 

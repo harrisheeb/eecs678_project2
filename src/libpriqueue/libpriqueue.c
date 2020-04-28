@@ -19,7 +19,8 @@
  */
 void priqueue_init(priqueue_t *q, int(*comparer)(const void *, const void *))
 {
-
+  q->front = q->rear = -1;
+  q->comparer = comparer;
 }
 
 
@@ -32,7 +33,39 @@ void priqueue_init(priqueue_t *q, int(*comparer)(const void *, const void *))
  */
 int priqueue_offer(priqueue_t *q, void *ptr)
 {
-	return -1;
+  if(q->rear >= 99){
+    printf("\nQueue overflow no more elements can be inserted.");
+    return -1;
+  }
+  if((q->front == -1) && (q->rear == -1)){
+    q->front++;
+    q->rear++;
+    q->m_q[q->rear] = ptr;
+    return q->rear;
+  }
+  
+  
+  
+  int i,j;
+ 
+  for (i = 0; i <= q->rear; i++)
+  {
+      //if (ptr >= q->m_q[i])
+      if(q->comparer(q->m_q[i], ptr) > -1)
+      {
+          for (j = q->rear + 1; j > i; j--)
+          {
+              q->m_q[j] = q->m_q[j - 1];
+          }
+          q->m_q[i] = ptr;
+          q->rear++;
+          return i;
+      }
+  }
+  q->m_q[i] = ptr;
+
+  q->rear++;
+	return i;
 }
 
 
@@ -46,6 +79,9 @@ int priqueue_offer(priqueue_t *q, void *ptr)
  */
 void *priqueue_peek(priqueue_t *q)
 {
+  if(q->rear != -1){
+    return q->m_q[0];
+  }
 	return NULL;
 }
 
@@ -60,7 +96,7 @@ void *priqueue_peek(priqueue_t *q)
  */
 void *priqueue_poll(priqueue_t *q)
 {
-	return NULL;
+	return priqueue_remove_at(q, 0);
 }
 
 
@@ -75,6 +111,9 @@ void *priqueue_poll(priqueue_t *q)
  */
 void *priqueue_at(priqueue_t *q, int index)
 {
+  if(index <= q->rear){
+    return q->m_q[index];
+  }
 	return NULL;
 }
 
@@ -90,7 +129,18 @@ void *priqueue_at(priqueue_t *q, int index)
  */
 int priqueue_remove(priqueue_t *q, void *ptr)
 {
-	return 0;
+  int sum = 0;
+  if(q->front == -1 && q->rear == -1){
+    return 0;
+  }
+  for(int i = q->front; i < q->rear; i++){
+    if(ptr == q->m_q[i]){
+      sum++;
+      priqueue_remove_at(q, i);
+      i--;
+    }
+  }
+	return sum;
 }
 
 
@@ -105,7 +155,24 @@ int priqueue_remove(priqueue_t *q, void *ptr)
  */
 void *priqueue_remove_at(priqueue_t *q, int index)
 {
-	return 0;
+  if ((q->front==-1) && (q->rear==-1))
+  {
+    printf("\nQueue is empty no elements to delete");
+    return NULL;
+  }
+  if(index >= q->rear || index < 0){
+    return NULL;
+  }
+  int i = index;
+  void* result = q->m_q[index];
+  for(; i < q->rear; i++){
+    q->m_q[i] = q->m_q[i+1];
+  }
+  q->rear--;
+  if(q->rear == -1){
+    q->front = -1;
+  }
+  return result;
 }
 
 
@@ -117,7 +184,7 @@ void *priqueue_remove_at(priqueue_t *q, int index)
  */
 int priqueue_size(priqueue_t *q)
 {
-	return 0;
+	return q->rear + 1;
 }
 
 
