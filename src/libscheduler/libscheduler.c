@@ -34,6 +34,10 @@ job_t** coreJobs;
 int updatedTime;
 float responseTotal = 0.0;
 int numOfResponses = 0;
+float totalWait = 0.0;
+int numWait = 0;
+float totalTurnaround = 0.0;
+int numTurnaround = 0;
 
 int compare(const void * a, const void * b)
 {
@@ -50,7 +54,7 @@ void updateTime(int time)
     job = coreJobs[i];
 
     if(job != NULL) {
-      if(job->firstTimeOnCore==-1 && job->lastUpdateTimeOnCore != updatedTime) {
+      if(job->firstTimeOnCore == -1 && job->lastUpdateTimeOnCore != updatedTime) {
 
         job->firstTimeOnCore = job->lastUpdateTimeOnCore;
 
@@ -121,7 +125,7 @@ int scheduler_new_job(int job_number, int time, int running_time, int priority)
 {
   updateTime(time);
 
-  job_t* job = new_job();
+  job_t* job = (job_t*)malloc(sizeof(job_t));
   job->priority = priority;
   job->arrivalTime = time;
   job->remainingTime = running_time;
@@ -172,6 +176,30 @@ int scheduler_new_job(int job_number, int time, int running_time, int priority)
  */
 int scheduler_job_finished(int core_id, int job_number, int time)
 {
+
+  updateTime(time);
+
+  job_t* job = coreJobs[core_id];
+  job->lastUpdateTimeOnCore = -1;
+  coreJobs[core_id] = NULL;
+  priqueue_offer(queueJob, job);
+
+  totalWait += updatedTime - job->arrivalTime - job->runningTime;
+  numWait++;
+
+  totalTurnaround += updatedTime - job->arrivalTime;
+  numTurnaround++;
+
+  free(job);
+
+  job = priqueue_poll(queueJob);
+
+  if(job) {
+    coreJobs[core_id] = job;
+    job->lastUpdateTimeOnCore = updatedTime;
+    return job->jobNumber;
+  }
+
 	return -1;
 }
 
@@ -191,6 +219,24 @@ int scheduler_job_finished(int core_id, int job_number, int time)
  */
 int scheduler_quantum_expired(int core_id, int time)
 {
+
+  updateTime(time);
+
+  job_t* job = coreJobs[core_id];
+  job->lastUpdateTimeOnCore = -1;
+  coreJobs[core_id] = NULL;
+  priqueue_offer(queueJob, job);
+
+  free(job); // TODO check
+
+  job = priqueue_poll(queueJob);
+
+  if(job) {
+    coreJobs[core_id] = job;
+    job->lastUpdateTimeOnCore = updatedTime;
+    return job->jobNumber;
+  }
+
 	return -1;
 }
 
@@ -204,7 +250,7 @@ int scheduler_quantum_expired(int core_id, int time)
  */
 float scheduler_average_waiting_time()
 {
-	return 0.0;
+	return (float) totalWait / numWait;
 }
 
 
