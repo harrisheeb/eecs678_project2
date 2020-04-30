@@ -86,7 +86,7 @@ void updateTime(int time)
 void scheduler_start_up(int cores, scheme_t scheme)
 {
   queueJob = (priqueue_t*)malloc(sizeof(priqueue_t));
-	priqueue_init(&queueJob, compare);
+	priqueue_init(queueJob, compare);
 
   numOfCores = cores;
   preloadedScheme = scheme;
@@ -263,7 +263,7 @@ float scheduler_average_waiting_time()
  */
 float scheduler_average_turnaround_time()
 {
-	return 0.0;
+	return (float) totalTurnaround / numTurnaround;
 }
 
 
@@ -276,7 +276,7 @@ float scheduler_average_turnaround_time()
  */
 float scheduler_average_response_time()
 {
-	return 0.0;
+	return (float) responseTotal / numOfResponses;
 }
 
 
@@ -288,7 +288,14 @@ float scheduler_average_response_time()
 */
 void scheduler_clean_up()
 {
+  void* temp = NULL;
+  while((temp = priqueue_poll(queueJob)) != NULL) {
+    free((job_t*) temp);
+  }
 
+  free(coreJobs);
+  priqueue_destroy(queueJob);
+  free(queueJob);
 }
 
 
