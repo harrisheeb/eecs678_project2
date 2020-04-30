@@ -8,7 +8,6 @@
 #include "libscheduler.h"
 #include "../libpriqueue/libpriqueue.h"
 
-
 /**
   Stores information making up a job to be scheduled including any statistics.
 
@@ -16,8 +15,55 @@
 */
 typedef struct _job_t
 {
-
+  int priority;
+  int arrivalTime;
+  int remainingTime;
+  int runningTime;
+  int firstTimeOnCore;
+  int lastUpdateTimeOnCore;
+  int jobNumber;
 } job_t;
+
+
+scheme_t preloadedScheme;
+
+int numOfCores;
+job_t** coreJobs;
+
+int updatedTime;
+float responseTotal = 0.0;
+int numOfResponses = 0;
+
+int compare(const void * a, const void * b)
+{
+	return ( *(int*)a - *(int*)b );
+}
+
+void updateTime(int time)
+{
+  updatedTime = time;
+  job_t * job = NULL;
+ 
+  for(int i = 0; i < numOfCores; i++) {
+
+    job = coreJobs[i];
+
+    if(job != NULL) {
+      if(job->firstTimeOnCore==-1 && job->lastUpdateTimeOnCore != updatedTime) {
+
+        job->firstTimeOnCore = job->lastUpdateTimeOnCore;
+
+        responseTotal += job->firstTimeOnCore - job->arrivalTime;
+        numOfResponses++;
+
+      }
+
+      job->remainingTime -= updatedTime - job->lastUpdateTimeOnCore;
+      job->lastUpdateTimeOnCore = updatedTime;
+
+    }
+  }
+}
 
 
 /**
@@ -34,7 +80,19 @@ typedef struct _job_t
 */
 void scheduler_start_up(int cores, scheme_t scheme)
 {
+  priqueue_t q;
+	priqueue_init(&q, compare);
 
+  numOfCores = cores;
+  preloadedScheme = scheme;
+
+  coreJobs = (job_t**)malloc(sizeof(job_t*)*numOfCores);
+
+  for(int i = 0; i < numOfCores; i++) {
+    coreJobs[i] = NULL;
+  }
+
+  updateTime(0);
 }
 
 
@@ -60,6 +118,43 @@ void scheduler_start_up(int cores, scheme_t scheme)
  */
 int scheduler_new_job(int job_number, int time, int running_time, int priority)
 {
+  updateTime(time);
+
+  job_t* job = new_job();
+  job->priority = priority;
+  job->arrivalTime = time;
+  job->remainingTime = running_time;
+  job->runningTime = running_time;
+  job->firstTimeOnCore = -1;
+  job->lastUpdateTimeOnCore = -1;
+  job->jobNumber = job_number;
+
+  int firstAvailableCore = -1;
+
+  for(int i = 0; i < numOfCores; i++) {
+    if(coreJobs[i] == NULL) {
+      firstAvailableCore = i;
+      return;
+    }
+  }
+
+  if(firstAvailableCore != -1) {
+
+    coreJobs[firstAvailableCore] = job;
+    job->lastUpdateTimeOnCore = updatedTime;
+    return firstAvailableCore;
+
+  } else if(preloadedScheme == PPRI || preloadedScheme == PSJF) {
+
+    // TODO
+
+  } else {
+
+    // TODO
+    return -1;
+
+  }
+
 	return -1;
 }
 
