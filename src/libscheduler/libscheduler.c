@@ -365,5 +365,11 @@ void scheduler_clean_up()
  */
 void scheduler_show_queue()
 {
-
+  //print queue with the following format:
+  // jobid(priority) jobid(priority) ...
+  for(int i = 0; i < priqueue_size(queueJob); i++){
+    job_t* temp = priqueue_at(queueJob, i);
+    printf("%d(%d) ", temp->jobNumber, temp->priority);
+  }
+  printf("\n");
 }
