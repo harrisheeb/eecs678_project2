@@ -341,7 +341,14 @@ float scheduler_average_response_time()
 */
 void scheduler_clean_up()
 {
+  void* temp = NULL;
+  while((temp = priqueue_poll(queueJob)) != NULL) {
+    free((job_t*) temp);
+  }
 
+  free(coreJobs);
+  priqueue_destroy(queueJob);
+  free(queueJob);
 }
 
 
