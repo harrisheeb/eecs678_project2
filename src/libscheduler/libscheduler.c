@@ -120,7 +120,7 @@ void updateTime(int time)
 void scheduler_start_up(int cores, scheme_t scheme)
 {
   queueJob = (priqueue_t*)malloc(sizeof(priqueue_t));
-  switch (preloadedScheme){
+  switch (scheme){
     case FCFS:
       priqueue_init(queueJob, compareArrivalTime);
       break;
