@@ -139,7 +139,7 @@ int scheduler_new_job(int job_number, int time, int running_time, int priority)
   for(int i = 0; i < numOfCores; i++) {
     if(coreJobs[i] == NULL) {
       firstAvailableCore = i;
-      return;
+      break;
     }
   }
 
