@@ -43,7 +43,7 @@ int numTurnaround = 0;
 int comparePriority(const void * a, const void * b)
 {
 	job_t* fooa = ((job_t*) a);
-  job_t* foob = ((job_t*) a);
+  job_t* foob = ((job_t*) b);
   return fooa->priority - foob->priority;
 }
 
@@ -51,14 +51,14 @@ int comparePriority(const void * a, const void * b)
 int compareRunningTime(const job_t * a, const job_t * b)
 {
   job_t* fooa = ((job_t*) a);
-  job_t* foob = ((job_t*) a);
+  job_t* foob = ((job_t*) b);
   return fooa->runningTime - foob->runningTime;}
 
 //used for PSJF
 int compareRemainingTime(const job_t * a, const job_t * b)
 {
 	job_t* fooa = ((job_t*) a);
-  job_t* foob = ((job_t*) a);
+  job_t* foob = ((job_t*) b);
   return fooa->remainingTime - foob->remainingTime;
 }
 
@@ -66,7 +66,7 @@ int compareRemainingTime(const job_t * a, const job_t * b)
 int compareArrivalTime(const job_t * a, const job_t * b)
 {
 	job_t* fooa = ((job_t*) a);
-  job_t* foob = ((job_t*) a);
+  job_t* foob = ((job_t*) b);
   return fooa->arrivalTime - foob->arrivalTime;
 }
 
@@ -74,7 +74,7 @@ int compareArrivalTime(const job_t * a, const job_t * b)
 int compareLastUpdateTimeOnCore(const job_t * a, const job_t * b)
 {
 	job_t* fooa = ((job_t*) a);
-  job_t* foob = ((job_t*) a);
+  job_t* foob = ((job_t*) b);
   return fooa->lastUpdateTimeOnCore - foob->lastUpdateTimeOnCore;
 }
 
