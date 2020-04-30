@@ -24,6 +24,7 @@ typedef struct _job_t
   int jobNumber;
 } job_t;
 
+priqueue_t* queueJob;
 
 scheme_t preloadedScheme;
 
@@ -80,8 +81,8 @@ void updateTime(int time)
 */
 void scheduler_start_up(int cores, scheme_t scheme)
 {
-  priqueue_t q;
-	priqueue_init(&q, compare);
+  queueJob = (priqueue_t*)malloc(sizeof(priqueue_t));
+	priqueue_init(&queueJob, compare);
 
   numOfCores = cores;
   preloadedScheme = scheme;
@@ -138,24 +139,20 @@ int scheduler_new_job(int job_number, int time, int running_time, int priority)
     }
   }
 
+  // TODO do different things based off of dirrerent preloadedSchemes
   if(firstAvailableCore != -1) {
 
     coreJobs[firstAvailableCore] = job;
     job->lastUpdateTimeOnCore = updatedTime;
     return firstAvailableCore;
 
-  } else if(preloadedScheme == PPRI || preloadedScheme == PSJF) {
-
-    // TODO
-
   } else {
 
-    // TODO
+    priqueue_offer(queueJob, job);
     return -1;
 
   }
 
-	return -1;
 }
 
 
