@@ -48,14 +48,14 @@ int comparePriority(const void * a, const void * b)
 }
 
 //used for SJF
-int compareRunningTime(const job_t * a, const job_t * b)
+int compareRunningTime(const void * a, const void * b)
 {
   job_t* fooa = ((job_t*) a);
   job_t* foob = ((job_t*) b);
   return fooa->runningTime - foob->runningTime;}
 
 //used for PSJF
-int compareRemainingTime(const job_t * a, const job_t * b)
+int compareRemainingTime(const void * a, const void * b)
 {
 	job_t* fooa = ((job_t*) a);
   job_t* foob = ((job_t*) b);
@@ -63,7 +63,7 @@ int compareRemainingTime(const job_t * a, const job_t * b)
 }
 
 //used for FCFS
-int compareArrivalTime(const job_t * a, const job_t * b)
+int compareArrivalTime(const void * a, const void * b)
 {
 	job_t* fooa = ((job_t*) a);
   job_t* foob = ((job_t*) b);
@@ -71,7 +71,7 @@ int compareArrivalTime(const job_t * a, const job_t * b)
 }
 
 //used for RR
-int compareLastUpdateTimeOnCore(const job_t * a, const job_t * b)
+int compareLastUpdateTimeOnCore(const void * a, const void * b)
 {
 	job_t* fooa = ((job_t*) a);
   job_t* foob = ((job_t*) b);
@@ -120,7 +120,26 @@ void updateTime(int time)
 void scheduler_start_up(int cores, scheme_t scheme)
 {
   queueJob = (priqueue_t*)malloc(sizeof(priqueue_t));
-	priqueue_init(queueJob, comparePriority);
+  switch (preloadedScheme){
+    case FCFS:
+      priqueue_init(queueJob, compareArrivalTime);
+      break;
+    case SJF:
+      priqueue_init(queueJob, compareRunningTime);
+      break;
+    case PSJF:
+      priqueue_init(queueJob, compareRemainingTime);
+      break;
+    case PRI:
+      priqueue_init(queueJob, comparePriority);
+      break;
+    case PPRI:
+      priqueue_init(queueJob, comparePriority);
+      break;
+    case RR:
+      priqueue_init(queueJob, compareLastUpdateTimeOnCore);
+      break;
+  }
 
   numOfCores = cores;
   preloadedScheme = scheme;
