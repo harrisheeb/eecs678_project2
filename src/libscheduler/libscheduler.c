@@ -120,7 +120,7 @@ void updateTime(int time)
 void scheduler_start_up(int cores, scheme_t scheme)
 {
   queueJob = (priqueue_t*)malloc(sizeof(priqueue_t));
-	priqueue_init(&queueJob, comparePriority);
+	priqueue_init(queueJob, comparePriority);
 
   numOfCores = cores;
   preloadedScheme = scheme;
