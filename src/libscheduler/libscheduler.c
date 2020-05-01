@@ -177,7 +177,6 @@ void scheduler_start_up(int cores, scheme_t scheme)
 int scheduler_new_job(int job_number, int time, int running_time, int priority)
 {
   updateTime(time);
-
   job_t* job = (job_t*)malloc(sizeof(job_t));
   job->priority = priority;
   job->arrivalTime = time;
@@ -248,11 +247,10 @@ int scheduler_new_job(int job_number, int time, int running_time, int priority)
     }
 
     if(index >= 0) {
-
-      job_t* job = coreJobs[index];
-      job->lastUpdateTimeOnCore = -1;
+      job_t* jobTemp = coreJobs[index];
+      jobTemp->lastUpdateTimeOnCore = -1;
       coreJobs[index] = NULL;
-      priqueue_offer(queueJob, job);
+      priqueue_offer(queueJob, jobTemp);
 
       coreJobs[index] = job;
       job->lastUpdateTimeOnCore = updatedTime;
@@ -299,6 +297,7 @@ int scheduler_job_finished(int core_id, int job_number, int time)
   numWait++;
 
   totalTurnaround += updatedTime - job->arrivalTime;
+  
   numTurnaround++;
 
   //free(job);
