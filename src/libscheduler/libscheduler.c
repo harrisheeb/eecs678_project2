@@ -337,7 +337,7 @@ int scheduler_quantum_expired(int core_id, int time)
   updateTime(time);
 
   job_t* job1 = coreJobs[core_id];
-  job1->lastUpdateTimeOnCore = -1;
+  job1->lastUpdateTimeOnCore = time;
   coreJobs[core_id] = NULL;
   priqueue_offer(queueJob, job1);
 
