@@ -122,22 +122,22 @@ void scheduler_start_up(int cores, scheme_t scheme)
   queueJob = (priqueue_t*)malloc(sizeof(priqueue_t));
   switch (scheme){
     case FCFS:
-      priqueue_init(queueJob, &compareArrivalTime);
+      priqueue_init(queueJob, compareArrivalTime);
       break;
     case SJF:
-      priqueue_init(queueJob, &compareRunningTime);
+      priqueue_init(queueJob, compareRunningTime);
       break;
     case PSJF:
-      priqueue_init(queueJob, &compareRemainingTime);
+      priqueue_init(queueJob, compareRemainingTime);
       break;
     case PRI:
-      priqueue_init(queueJob, &comparePriority);
+      priqueue_init(queueJob, comparePriority);
       break;
     case PPRI:
-      priqueue_init(queueJob, &comparePriority);
+      priqueue_init(queueJob, comparePriority);
       break;
     case RR:
-      priqueue_init(queueJob, &compareLastUpdateTimeOnCore);
+      priqueue_init(queueJob, compareLastUpdateTimeOnCore);
       break;
   }
 
@@ -301,7 +301,7 @@ int scheduler_job_finished(int core_id, int job_number, int time)
   totalTurnaround += updatedTime - job->arrivalTime;
   numTurnaround++;
 
-  free(job);
+  //free(job);
 
   job = priqueue_poll(queueJob);
 
