@@ -122,22 +122,22 @@ void scheduler_start_up(int cores, scheme_t scheme)
   queueJob = (priqueue_t*)malloc(sizeof(priqueue_t));
   switch (scheme){
     case FCFS:
-      priqueue_init(queueJob, compareArrivalTime);
+      priqueue_init(queueJob, &compareArrivalTime);
       break;
     case SJF:
-      priqueue_init(queueJob, compareRunningTime);
+      priqueue_init(queueJob, &compareRunningTime);
       break;
     case PSJF:
-      priqueue_init(queueJob, compareRemainingTime);
+      priqueue_init(queueJob, &compareRemainingTime);
       break;
     case PRI:
-      priqueue_init(queueJob, comparePriority);
+      priqueue_init(queueJob, &comparePriority);
       break;
     case PPRI:
-      priqueue_init(queueJob, comparePriority);
+      priqueue_init(queueJob, &comparePriority);
       break;
     case RR:
-      priqueue_init(queueJob, compareLastUpdateTimeOnCore);
+      priqueue_init(queueJob, &compareLastUpdateTimeOnCore);
       break;
   }
 
@@ -203,6 +203,63 @@ int scheduler_new_job(int job_number, int time, int running_time, int priority)
     job->lastUpdateTimeOnCore = updatedTime;
     return firstAvailableCore;
 
+  } else if(preloadedScheme == PPRI || preloadedScheme == PSJF) {
+
+    int compResult = 0;
+    int newResult = 0;
+    int index = -1;
+
+    for(int i = 0; i < numOfCores; i++) {
+
+      switch (preloadedScheme){
+        case FCFS:
+          newResult = compareArrivalTime(job, coreJobs[i]);
+          break;
+        case SJF:
+          newResult = compareRunningTime(job, coreJobs[i]);
+          break;
+        case PSJF:
+          newResult = compareRemainingTime(job, coreJobs[i]);
+          break;
+        case PRI:
+          newResult = comparePriority(job, coreJobs[i]);
+          break;
+        case PPRI:
+          newResult = comparePriority(job, coreJobs[i]);
+          break;
+        case RR:
+          newResult = compareLastUpdateTimeOnCore(job, coreJobs[i]);
+          break;
+      }
+
+      if(newResult < compResult) {
+
+        compResult = newResult;
+        index = i;
+
+      } else if(newResult == compResult){
+
+        if(index != -1){
+          index = (coreJobs[index]->arrivalTime >= coreJobs[index]->arrivalTime) ? index : i;
+        }
+
+      }
+
+    }
+
+    if(index >= 0) {
+
+      job_t* job = coreJobs[index];
+      job->lastUpdateTimeOnCore = -1;
+      coreJobs[index] = NULL;
+      priqueue_offer(queueJob, job);
+
+      coreJobs[index] = job;
+      job->lastUpdateTimeOnCore = updatedTime;
+    }
+
+    return index;
+
   } else {
 
     priqueue_offer(queueJob, job);
@@ -235,7 +292,8 @@ int scheduler_job_finished(int core_id, int job_number, int time)
   job_t* job = coreJobs[core_id];
   job->lastUpdateTimeOnCore = -1;
   coreJobs[core_id] = NULL;
-  priqueue_offer(queueJob, job);
+  //priqueue_offer(queueJob, job);
+  priqueue_remove(queueJob, job);
 
   totalWait += updatedTime - job->arrivalTime - job->runningTime;
   numWait++;
@@ -275,14 +333,14 @@ int scheduler_quantum_expired(int core_id, int time)
 
   updateTime(time);
 
-  job_t* job = coreJobs[core_id];
-  job->lastUpdateTimeOnCore = -1;
+  job_t* job1 = coreJobs[core_id];
+  job1->lastUpdateTimeOnCore = -1;
   coreJobs[core_id] = NULL;
-  priqueue_offer(queueJob, job);
+  priqueue_offer(queueJob, job1);
 
-  free(job); // TODO check
+  //free(job); // TODO check
 
-  job = priqueue_poll(queueJob);
+  job_t* job = priqueue_poll(queueJob);
 
   if(job) {
     coreJobs[core_id] = job;
@@ -316,7 +374,7 @@ float scheduler_average_waiting_time()
  */
 float scheduler_average_turnaround_time()
 {
-	return 0.0;
+	return (float) totalTurnaround / numTurnaround;
 }
 
 
@@ -329,7 +387,7 @@ float scheduler_average_turnaround_time()
  */
 float scheduler_average_response_time()
 {
-	return 0.0;
+	return (float) responseTotal / numOfResponses;
 }
 
 
