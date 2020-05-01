@@ -161,7 +161,7 @@ void *priqueue_remove_at(priqueue_t *q, int index)
     printf("\nQueue is empty no elements to delete");
     return NULL;
   }
-  if(index >= q->rear || index < 0){
+  if(index > q->rear || index < 0){
     return NULL;
   }
   int i = index;
