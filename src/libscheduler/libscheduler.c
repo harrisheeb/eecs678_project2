@@ -22,6 +22,7 @@ typedef struct _job_t
   int firstTimeOnCore;
   int lastUpdateTimeOnCore;
   int jobNumber;
+  int queueCounter;
 } job_t;
 
 priqueue_t* queueJob;
@@ -38,6 +39,7 @@ float totalWait = 0.0;
 int numWait = 0;
 float totalTurnaround = 0.0;
 int numTurnaround = 0;
+int globalCounter = 0;
 
 //used for PRI and PPRI
 int comparePriority(const void * a, const void * b)
@@ -75,7 +77,7 @@ int compareLastUpdateTimeOnCore(const void * a, const void * b)
 {
 	job_t* fooa = ((job_t*) a);
   job_t* foob = ((job_t*) b);
-  return fooa->lastUpdateTimeOnCore - foob->lastUpdateTimeOnCore;
+  return fooa->queueCounter - foob->queueCounter;
 }
 
 void updateTime(int time)
@@ -185,6 +187,8 @@ int scheduler_new_job(int job_number, int time, int running_time, int priority)
   job->firstTimeOnCore = -1;
   job->lastUpdateTimeOnCore = -1;
   job->jobNumber = job_number;
+  job->queueCounter = globalCounter;
+  globalCounter = globalCounter + 1;
 
   int firstAvailableCore = -1;
 
@@ -338,6 +342,8 @@ int scheduler_quantum_expired(int core_id, int time)
 
   job_t* job1 = coreJobs[core_id];
   job1->lastUpdateTimeOnCore = time;
+  job1->queueCounter = globalCounter;
+  globalCounter ++;
   coreJobs[core_id] = NULL;
   priqueue_offer(queueJob, job1);
 
