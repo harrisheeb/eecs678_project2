@@ -14,7 +14,7 @@ typedef struct _priqueue_t
   int front, rear;
   int size;
 } priqueue_t;
-
+int difcompare;
 
 void   priqueue_init     (priqueue_t *q, int(*comparer)(const void *, const void *));
 

@@ -254,8 +254,9 @@ int scheduler_new_job(int job_number, int time, int running_time, int priority)
       job_t* jobTemp = coreJobs[index];
       jobTemp->lastUpdateTimeOnCore = -1;
       coreJobs[index] = NULL;
+      difcompare = 1;
       priqueue_offer(queueJob, jobTemp);
-
+      difcompare = 0;
       coreJobs[index] = job;
       job->lastUpdateTimeOnCore = updatedTime;
       return index;

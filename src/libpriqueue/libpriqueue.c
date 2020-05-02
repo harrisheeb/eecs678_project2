@@ -19,6 +19,7 @@
  */
 void priqueue_init(priqueue_t *q, int(*comparer)(const void *, const void *))
 {
+  difcompare = 0;
   q->front = q->rear = -1;
   q->comparer = comparer;
   q->size = 100;
@@ -54,9 +55,12 @@ int priqueue_offer(priqueue_t *q, void *ptr)
       //if (ptr >= q->m_q[i])
       if(q->comparer(q->m_q[i], ptr) > -1)
       {
-          while(i <= q->rear && q->comparer(q->m_q[i], ptr) == 0){
-            i = i+1;
+          if(difcompare == 0){
+            while(i <= q->rear && q->comparer(q->m_q[i], ptr) == 0){
+              i = i+1;
+            }
           }
+          
           for (j = q->rear + 1; j > i; j--)
           {
               q->m_q[j] = q->m_q[j - 1];
