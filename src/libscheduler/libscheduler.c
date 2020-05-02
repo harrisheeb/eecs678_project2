@@ -243,7 +243,7 @@ int scheduler_new_job(int job_number, int time, int running_time, int priority)
       } else if(newResult == compResult){
 
         if(index != -1){
-          index = (coreJobs[index]->arrivalTime >= coreJobs[index]->arrivalTime) ? index : i;
+          index = (coreJobs[index]->arrivalTime >= coreJobs[i]->arrivalTime) ? index : i;
         }
 
       }
