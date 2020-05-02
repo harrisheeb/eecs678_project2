@@ -54,7 +54,7 @@ int priqueue_offer(priqueue_t *q, void *ptr)
       //if (ptr >= q->m_q[i])
       if(q->comparer(q->m_q[i], ptr) > -1)
       {
-          while(q->comparer(q->m_q[i], ptr) == 0){
+          while(i <= q->rear && q->comparer(q->m_q[i], ptr) == 0){
             i = i+1;
           }
           for (j = q->rear + 1; j > i; j--)
